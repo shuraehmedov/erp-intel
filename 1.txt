@@ -1,1 +1,117 @@
-Salam dunya,azer
+
+ with `cte` as (select `gpc`.`key` AS `calendar_legend_key`,`ca`.`date` AS `ca_date`,`x`.`contract_id` AS `contract_id`,`x`.`employee_id` AS `employee_id`,`x`.`company_id` AS `company_id`,
+`x`.`pos_dep_id` AS `pos_dep_id`,`x`.`shift_cal_id` AS `shift_cal_id`,`x`.`contract_date` AS `contract_date` 
+from ((`glo_calendar` `ca` join (
+select `lca`.`contract_id` AS `contract_id`,`lc`.`employee_id` AS `employee_id`,`lc`.`company_id` AS `company_id`,`lca`.`pos_dep_id` AS `pos_dep_id`,
+`lca`.`shift_cal_id` AS `shift_cal_id`,`lc`.`date` AS `contract_date`,row_number() OVER (PARTITION BY `lca`.`contract_id` ORDER BY `lca`.`appendix_date` desc )  AS `rn`
+ from ((((`hr_adm_labor_contract` `lc` join `glo_transaction` `gt` on((`gt`.`id` = `lc`.`transaction_id`))) join `glo_pl_status` `ps` on(((`ps`.`id` = `gt`.`status_id`) and (`ps`.`key` = 'approved')))) 
+ join `hr_adm_lc_contract_type_period` `lctp` on(((`lc`.`type_period_id` = `lctp`.`id`) and (`lctp`.`key` = 'monthly'))))
+ join (select y.*
+ from (select `hr_adm_lc_appendix`.`id` AS `id`,`hr_adm_lc_appendix`.`uuid` AS `uuid`,`hr_adm_lc_appendix`.`contract_id` AS `contract_id`,`hr_adm_lc_appendix`.`pos_dep_id` AS `pos_dep_id`,`hr_adm_lc_appendix`.`state_id` AS `state_id`,`hr_adm_lc_appendix`.`workplace_id` AS `workplace_id`,`hr_adm_lc_appendix`.`contract_type_id` AS `contract_type_id`,`hr_adm_lc_appendix`.`probation_id` AS `probation_id`,`hr_adm_lc_appendix`.`labor_payment_id` AS `labor_payment_id`,`hr_adm_lc_appendix`.`working_condition_id` AS `working_condition_id`,`hr_adm_lc_appendix`.`payment_period_id` AS `payment_period_id`,`hr_adm_lc_appendix`.`non_working_type_id` AS `non_working_type_id`,`hr_adm_lc_appendix`.`bank_id` AS `bank_id`,`hr_adm_lc_appendix`.`shift_cal_id` AS `shift_cal_id`,`hr_adm_lc_appendix`.`cost_center` AS `cost_center`,`hr_adm_lc_appendix`.`tariff_salary_type` AS `tariff_salary_type`,`hr_adm_lc_appendix`.`award_period` AS `award_period`,`hr_adm_lc_appendix`.`division_id` AS `division_id`,`hr_adm_lc_appendix`.`group_id` AS `group_id`,`hr_adm_lc_appendix`.`probation_duration` AS `probation_duration`,`hr_adm_lc_appendix`.`work_start_date` AS `work_start_date`,`hr_adm_lc_appendix`.`contract_expiration_date` AS `contract_expiration_date`,`hr_adm_lc_appendix`.`appendix_date` AS `appendix_date`,`hr_adm_lc_appendix`.`first_salary_date` AS `first_salary_date`,`hr_adm_lc_appendix`.`second_salary_date` AS `second_salary_date`,`hr_adm_lc_appendix`.`tariff_salary` AS `tariff_salary`,`hr_adm_lc_appendix`.`tariff_salary_add` AS `tariff_salary_add`,`hr_adm_lc_appendix`.`award_amount` AS `award_amount`,`hr_adm_lc_appendix`.`working_condition_amount` AS `working_condition_amount`,`hr_adm_lc_appendix`.`overtime_amount` AS `overtime_amount`,`hr_adm_lc_appendix`.`non_bus_day_amount` AS `non_bus_day_amount`,`hr_adm_lc_appendix`.`social_amount` AS `social_amount`,`hr_adm_lc_appendix`.`social_ins_amount` AS `social_ins_amount`,`hr_adm_lc_appendix`.`social_ins_amount_add` AS `social_ins_amount_add`,`hr_adm_lc_appendix`.`vacation` AS `vacation`,`hr_adm_lc_appendix`.`seniority_vac` AS `seniority_vac`,`hr_adm_lc_appendix`.`condition_vac` AS `condition_vac`,`hr_adm_lc_appendix`.`family_vac` AS `family_vac`,`hr_adm_lc_appendix`.`collective_vac` AS `collective_vac`,`hr_adm_lc_appendix`.`note` AS `note`,`hr_adm_lc_appendix`.`social_note` AS `social_note`,`hr_adm_lc_appendix`.`rule` AS `rule`,`hr_adm_lc_appendix`.`status` AS `status`,`hr_adm_lc_appendix`.`height_conditation` AS `height_conditation`,`hr_adm_lc_appendix`.`hard_and_dangerous` AS `hard_and_dangerous`,
+ row_number() OVER (PARTITION BY `hr_adm_lc_appendix`.`contract_id` ORDER BY `hr_adm_lc_appendix`.`appendix_date` desc,`hr_adm_lc_appendix`.`id` desc )  AS `aa`
+ from `hr_adm_lc_appendix` where (`hr_adm_lc_appendix`.`status` = 1) and 
+ (cast(concat(year(`hr_adm_lc_appendix`.`appendix_date`),date_format(`hr_adm_lc_appendix`.`appendix_date`,'%m')) as signed) <= cast(concat(year(`return_date`()),date_format(`return_date`(),'%m')) as signed)) 
+ ) `y` where (`y`.`aa` = 1)) `lca` on ((`lc`.`id` = `lca`.`contract_id`))) 
+ where ((`lca`.`status` = 1) and (`lc`.`status` = 1)
+ and (cast(concat(year(`lca`.`appendix_date`),date_format(`lca`.`appendix_date`,'%m')) as signed) <= cast(concat(year(`return_date`()),date_format(`return_date`(),'%m')) as signed)) 
+ and exists(select `ao`.`contract_id` from ((`hr_adm_order` `ao` join `hr_adm_order_leave` `ol` on((`ao`.`id` = `ol`.`order_id`))) 
+ join `hr_com_document_type` `cdt` on(((`ao`.`order_type_id` = `cdt`.`id`) 
+ and (`cdt`.`key` = 'xitam_emri')))) where ((`ao`.`contract_id` = `lca`.`contract_id`) and (`ao`.`status` = 1) and (concat(year(`ol`.`date`),date_format(`ol`.`date`,'%m')) 
+ <= (concat(year(`return_date`()),date_format(`return_date`(),'%m')) - 1)))) is false)
+ ) `x`) join `glo_pl_calendar_legend` `gpc` on((`gpc`.`id` = `ca`.`calendar_legend_id`))) where ((concat(year(`ca`.`date`),month(`ca`.`date`)) = concat(year(`return_date`()),month(`return_date`())))
+ and (`x`.`rn` = 1))), 
+ 
+ `vac` as (
+ select `o`.`contract_id` AS `contract_id`,
+ 
+ if((`ol`.`date` is null),`ov`.`start_date`,`ol`.`date`) AS `start_date`,
+ if((`ol`.`date` is null),if((`aor`.`recall_date` is null),`ov`.`table_end_date`,`aor`.`recall_date`),`ol`.`date`) AS `end_date`,
+ 
+ `tds`.`key` AS `key`,`tds`.`name` AS `tabel_abb`,`tds`.`color` AS `color`,`bdt`.`status_id` AS `status_id`
+ from ((((((((`hr_adm_order` `o` join `glo_transaction` `gt` on((`gt`.`id` = `o`.`trn_id`))) join `glo_pl_status` `ps` on(((`ps`.`id` = `gt`.`status_id`) and (`ps`.`key` = 'approved')))) 
+ join `hr_com_document_type` `cdt` on((`o`.`order_type_id` = `cdt`.`id`))) join `hr_pl_tabel_belong_day_status` `bdt` on((`bdt`.`document_id` = `cdt`.`id`))) 
+ join `hr_pl_tabel_day_status` `tds` on((`tds`.`id` = `bdt`.`status_id`)))
+ left join `hr_adm_order_vac` `ov` on(((`o`.`id` = `ov`.`order_id`) and (`ov`.`status` = 1)))) 
+ left join `hr_adm_order_leave` `ol` on(((`o`.`id` = `ol`.`order_id`) and (`ol`.`status` = 1)))) left join `hr_adm_order_recall` `aor` on(((`o`.`id` = `aor`.`recall_order_id`) 
+ and (`aor`.`status` = 1)))) where (`o`.`status` = 1)), 
+ 
+ `day_b` as (select `day_b`.`id` AS `id`,`day_b`.`name` AS `name`,`day_b`.`color` AS `color`,`day_b`.`key` AS `key` 
+ from `hr_pl_tabel_day_status` `day_b` where (`day_b`.`key` = 'b')),
+ 
+ `day_s` as (select `hr_pl_tabel_day_status`.`id` AS `id`,`hr_pl_tabel_day_status`.`name` AS `name` 
+ from `hr_pl_tabel_day_status` where (`hr_pl_tabel_day_status`.`key` = 'day')), 
+ 
+ `day_i` as (select `day_i`.`id` AS `id`,`day_i`.`name` AS `name`,`day_i`.`color` AS `color`,`day_i`.`key` AS `key` 
+ from `hr_pl_tabel_day_status` `day_i` where (`day_i`.`key` = 'i')),
+ 
+ `contract_before` as (select `cb`.`id` AS `id`,`cb`.`name` AS `name`,`cb`.`color` AS `color`,`cb`.`key` AS `key` 
+ from `hr_pl_tabel_day_status` `cb` where (`cb`.`key` = 'contract_before')), 
+ 
+ `work_shift` as (select `sc`.`shift_id` AS `shift_id`,`swn`.`name` AS `name`,`stw`.`key` AS `key`,(sum(if((`stw`.`key` = 'ish'),
+ timestampdiff(HOUR,`scs`.`start_date`,`scs`.`end_date`),0)) - sum(if((`stw`.`key` = 'nahar'),timestampdiff(HOUR,`scs`.`start_date`,`scs`.`end_date`),0))) AS `hour`
+ from (((`hr_tm_shift_calendar` `sc` 
+ join `hr_pl_shift_weekday_name` `swn` on((`sc`.`weekday_id` = `swn`.`id`))) 
+ join `hr_pl_shift_cal_status` `scs` on((`sc`.`calendar_status_id` = `scs`.`id`))) 
+ join `hr_pl_shift_type_work` `stw` on((`scs`.`type_work_id` = `stw`.`id`))) where ((`sc`.`weekday_id` = `swn`.`id`) and (`sc`.`status` = 1)) 
+ group by `sc`.`shift_id`,`swn`.`name`),
+ 
+ addition_working_shift  as (select awd.shift_id,awd.date,`stw`.`key` AS `key`,(sum(if((`stw`.`key` = 'ish'),
+ timestampdiff(HOUR,`scs`.`start_date`,`scs`.`end_date`),0)) - sum(if((`stw`.`key` = 'nahar'),timestampdiff(HOUR,`scs`.`start_date`,`scs`.`end_date`),0))) AS `hour`
+ from hr_tm_addition_working_day awd
+ join hr_pl_shift_cal_status scs on awd.calendar_status_id = scs.id
+ join hr_pl_shift_type_work stw on scs.type_work_id = stw.id
+ group by awd.shift_id)
+ 
+ select dayofmonth(`c`.`ca_date`) AS `day`,`c`.`contract_id` AS `contract_id`,
+ 
+ if(c.calendar_legend_key = 'working',
+ if(contract_before.id is null,
+ if(vac.key is not null and vac.key != 'x',  0   ,if(work_shift.hour is null,if(addition_working_shift.hour is null,0,addition_working_shift.hour),work_shift.hour))
+ ,0),0) hour,
+ 
+  if((`c`.`calendar_legend_key` = 'working'),
+   if((`contract_before`.`id` is null),
+   if(vac.key='xv',
+     if(work_shift.hour is null and addition_working_shift.hour is null, day_i.id,vac.status_id),
+     if(vac.key is null,  if(work_shift.hour is null and addition_working_shift.hour is null,day_i.id,day_s.id)   ,vac.status_id)
+   )
+   ,contract_before.id)
+  ,day_b.id) AS day_type_id,
+  
+  if((`c`.`calendar_legend_key` = 'working'),
+   if((`contract_before`.`id` is null),
+   if(vac.key='xv',
+     if(work_shift.hour is null and addition_working_shift.hour is null,day_i.key,vac.tabel_abb),
+     if(vac.key is null,  if(work_shift.hour is null,if(addition_working_shift.hour is null,day_i.key,addition_working_shift.hour),work_shift.hour)   ,vac.tabel_abb)
+   )
+   ,NULL)
+  ,day_b.key) AS tabel_abb,
+  
+ if((`c`.`calendar_legend_key` = 'working'),
+  if((`contract_before`.`id` is null),
+   if(vac.key='xv',
+     if(work_shift.hour is null and addition_working_shift.hour is null,day_i.color,vac.color),
+      if(vac.key is null,if((work_shift.hour is null and addition_working_shift.hour is null),day_i.color,null),vac.color)
+   )
+   ,contract_before.color)
+  ,day_b.color) AS color,
+ 
+ if((`c`.`calendar_legend_key` = 'working'),
+  if((`contract_before`.`id` is null),
+   if(vac.key='xv',
+     if(work_shift.hour is null and addition_working_shift.hour is null,day_i.key,vac.key),
+      if(vac.key is null,if((work_shift.hour is null and addition_working_shift.hour is null),day_i.key,null),vac.key)
+   )
+   ,contract_before.key)
+  ,day_b.key) AS `key`,
+ 
+ `c`.`employee_id` AS `employee_id`,`c`.`company_id` AS `company_id`,`dp`.`position_id` AS `position_id`
+ from `cte` `c` join `day_b`
+ join `day_s` join `day_i` left join `hr_adm_dep_pos` `dp` on((`dp`.`id` = `c`.`pos_dep_id`))
+ left join `vac` on(((`c`.`contract_id` = `vac`.`contract_id`) 
+ and (concat(date_format(`return_date`(),'%Y-%m-'),if((dayofmonth(`c`.`ca_date`) < 10),concat(0,dayofmonth(`c`.`ca_date`)),dayofmonth(`c`.`ca_date`))) between date_format(`vac`.`start_date`,'%Y-%m-%d') 
+ and date_format(`vac`.`end_date`,'%Y-%m-%d'))))
+ left join `contract_before` on((`c`.`contract_date` > `c`.`ca_date`))
+ left join `work_shift` on(((`work_shift`.`shift_id` = `c`.`shift_cal_id`) and (`work_shift`.`name` = dayname(`c`.`ca_date`)))) 
+ left join `addition_working_shift` on `addition_working_shift`.`shift_id` = `c`.`shift_cal_id` and `addition_working_shift`.`date` = c.ca_date
+ order by `c`.`contract_id`,`c`.`ca_date`
