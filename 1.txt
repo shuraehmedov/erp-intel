@@ -1,4 +1,4 @@
-set @dt ="2023-06-01";
+
  with `cte` as (select `gpc`.`key` AS `calendar_legend_key`,`ca`.`date` AS `ca_date`,`x`.`contract_id` AS `contract_id`,`x`.`employee_id` AS `employee_id`,`x`.`company_id` AS `company_id`,
 `x`.`pos_dep_id` AS `pos_dep_id`,`x`.`shift_cal_id` AS `shift_cal_id`,`x`.`contract_date` AS `contract_date` 
 from ((`glo_calendar` `ca` join (
